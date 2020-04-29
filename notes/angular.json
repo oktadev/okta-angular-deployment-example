@@ -117,6 +117,15 @@
               "devServerTarget": "notes:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@jefiozie/ngx-aws-deploy:deploy",
+          "options": {
+            "region": "us-west-2",
+            "bucket": "ng-notes-1337",
+            "secretAccessKey": "cZW9tXJYFZJlaoG77EBg+qRz6b4EYV45oeWy3rHA",
+            "accessKeyId": "AKIAIYS5QRR77GLLRPFQ"
+          }
         }
       }
     }
