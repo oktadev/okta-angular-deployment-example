@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "ng-notes-1337": {
+      "hosting": {
+        "notes": [
+          "ng-notes-1337"
+        ]
+      }
+    }
+  }
+}
