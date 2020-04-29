@@ -20,6 +20,8 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
+              "src/_headers",
+              "src/_redirects",
               "src/favicon.ico",
               "src/assets"
             ],
@@ -116,6 +118,14 @@
             "production": {
               "devServerTarget": "notes:serve:production"
             }
+          }
+        },
+        "deploy": {
+          "builder": "@netlify-builder/deploy:deploy",
+          "options": {
+            "outputPath": "dist/notes",
+            "netlifyToken": "04b966f772d233ad15132881189cc335cb57c0aa507ea610a104c79968a94f10",
+            "siteId": "1dda959c-0950-4d68-ab78-9a026291c096"
           }
         }
       }
