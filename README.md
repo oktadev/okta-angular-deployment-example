@@ -2,9 +2,7 @@
  
 This example shows how to deploy Angular and Spring Boot to Heroku. It also shows how to deploy Angular to Firebase, Netlify, and AWS S3 using `ng deploy`. 
 
-<!-- 
-Please read [Build Beautiful Angular Apps with Bootstrap](https://developer.okta.com/blog/2020/03/02/angular-bootstrap) to see how this app was created.
--->
+Please read [Angular Deployment with a Side of Spring Boot](https://developer.okta.com/blog/2020/05/29/angular-deployment) to see how this app was created.
 
 **Prerequisites:** 
 
@@ -97,7 +95,7 @@ This example uses the following open source libraries from Okta:
 
 ## Help
 
-Please post any questions as comments on the [blog post](), or visit our [Okta Developer Forums](https://devforum.okta.com/).
+Please post any questions as comments on the [blog post](https://developer.okta.com/blog/2020/05/29/angular-deployment), or visit our [Okta Developer Forums](https://devforum.okta.com/).
 
 ## License
 
