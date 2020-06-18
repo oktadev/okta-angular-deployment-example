@@ -59,11 +59,7 @@ source okta.env
 +
 TIP: Show how to configure environment variables in IDEA for `DemoApplication`.
 
-. Configure Angular for OIDC authentication by modifying its `auth-routing.module.ts` to use the generated issuer and client ID.
-
-. Modify the Heroku-created browser app and add `\http://localhost:4200/callback` as a **Login redirect URI** and `\http://localhost:4200` as a **Logout redirect URI**.
-
-. Add `\http://localhost:4200` as a trusted origin in **API** > **Trusted Origins**.
+. Configure Angular for OIDC authentication by modifying its `auth-routing.module.ts` to use the `SPA` issuer and client ID.
 
 . Install the Angular app's dependencies and start it.
 +
@@ -103,10 +99,10 @@ plugins {
 +
 [source,shell]
 ----
-./gradlew wrapper --gradle-version=6.4 --distribution-type=bin
+./gradlew wrapper --gradle-version=6.5 --distribution-type=bin
 ----
 
-. Upgrade to the latest versions in the `notes-api` directory.
+. Upgrade to the latest library versions in the `notes-api` project.
 +
 [source,shell]
 ----
@@ -238,6 +234,8 @@ export class NoteService {
   }
 }
 ----
+
+==== Use PostgreSQL in Production
 
 . Edit `build.gradle.kts` and change the H2 dependency so PostgreSQL is used when `-Pprod` is passed in.
 +
@@ -387,7 +385,7 @@ heroku config:edit
 git push heroku master
 ----
 
-. Run `heroku open` and log in.
+. Run `heroku open` and frown at 404.
 
 . Add a `HomeController` [`kotlin-home`]
 +
@@ -418,7 +416,7 @@ git commit -am "Add HomeController"
 git push heroku master
 ----
 
-. Show `HomeController` workin on Heroku.
+. Show `HomeController` working on Heroku. 🎉
 
 === Deploy Angular to Heroku
 
@@ -458,7 +456,7 @@ heroku buildpacks:add heroku/nodejs -a $APP_NAME
 [source,shell]
 ----
 git commit -am "Prepare Angular for Heroku"
-git remote add angular https://git.heroku.com/<your-app-name>.git
+git remote add angular https://git.heroku.com/$APP_NAME.git
 git push angular master
 ----
 
@@ -469,7 +467,7 @@ git push angular master
 heroku open --remote angular
 ----
 
-. You won't be able to log in to your app until you modify its Login redirect URI on Okta.
+. You won't be able to log in to your app until you modify the `SPA` app to have its Login redirect URI on Okta.
 
   * **Login redirect URI**: `\https://<angular-app-on-heroku>.herokuapp.com/callback`
   * **Logout redirect URI**:  `\https://<angular-app-on-heroku>.herokuapp.com`
@@ -478,7 +476,7 @@ heroku open --remote angular
 +
 [source,shell]
 ----
-heroku config:set ALLOWED_ORIGINS=https://<angular-app-on-heroku>.herokuapp.com --remote heroku
+heroku config:set ALLOWED_ORIGINS=https://$APP_NAME.herokuapp.com --remote heroku
 ----
 
 . Now you should be able to add a note. Pat yourself on the back for a job well done!
@@ -496,14 +494,14 @@ heroku config:set SPRING_JPA_HIBERNATE_DDL_AUTO=validate --remote heroku
 
 . Show security headers score using https://securityheaders.com[securityheaders.com].
 
-. Create a `notes/static.json` file with the configuration for secure headers and redirect all HTTP requests to HTTPS.
+. Create a `notes/static.json` file with the configuration for secure headers and redirect all HTTP requests to HTTPS. [`headers-heroku`]
 +
 [source,json]
 ----
 {
   "headers": {
     "/**": {
-      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'; connect-src 'self' https://*.okta.com",
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'; connect-src 'self' https://*.okta.com https://*.herokuapp.com",
       "Referrer-Policy": "no-referrer, strict-origin-when-cross-origin",
       "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
       "X-Content-Type-Options": "nosniff",
@@ -538,7 +536,7 @@ heroku config:set SPRING_JPA_HIBERNATE_DDL_AUTO=validate --remote heroku
 +
 [source,shell]
 ----
-git add static.json
+git add .
 git commit -am "Configure secure headers and static buildpack"
 heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git --remote angular
 git push angular master
@@ -592,7 +590,7 @@ ALLOWED_ORIGINS='https://stark-lake-39546.herokuapp.com,https://ng-notes-1337.we
 
 . Test Firebase site on https://securityheaders.com/[securityheaders.com] to show how it scores a **D**.
 
-. To fix this, you can https://firebase.google.com/docs/hosting/full-config#headers[configure headers] in your `firebase.json` file.
+. To fix this, you can https://firebase.google.com/docs/hosting/full-config#headers[configure headers] in your `firebase.json` file. [`headers-firebase`]
 +
 [source,json]
 ----
@@ -601,7 +599,7 @@ ALLOWED_ORIGINS='https://stark-lake-39546.herokuapp.com,https://ng-notes-1337.we
   "headers": [
     {
       "key": "Content-Security-Policy",
-      "value": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'; connect-src 'self' https://*.okta.com"
+      "value": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'; connect-src 'self' https://*.okta.com https://*.herokuapp.com"
     },
     {
       "key": "Referrer-Policy",
@@ -846,7 +844,7 @@ heroku config:edit --remote heroku
 
 . Choose **Author from scratch** and name it `securityHeaders`. Under Permissions, select **Create a new role from AWS Policy templates**. Name the role `securityHeaders-role` and select **Basic Lambda@Edge permissions (for CloudFront trigger)**. Click **Create function**.
 
-. In the Function code section, set `index.js` to have the following JavaScript.
+. In the Function code section, set `index.js` to have the following JavaScript. [`aws-headers`]
 +
 [source,js]
 ----
@@ -857,7 +855,7 @@ exports.handler = (event, context, callback) => {
   const headers = response.headers;
 
   // set headers
-  headers['content-security-policy'] = [{key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'; connect-src 'self' https://*.okta.com"}];
+  headers['content-security-policy'] = [{key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'; connect-src 'self' https://*.okta.com https://*.herokuapp.com"}];
   headers['referrer-policy'] = [{key: 'Referrer-Policy', value: 'no-referrer, strict-origin-when-cross-origin'}];
   headers['strict-transport-security'] = [{key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubdomains'}];
   headers['x-content-type-options'] = [{key: 'X-Content-Type-Options', value: 'nosniff'}];
@@ -889,6 +887,4 @@ CAUTION: If you committed the changes in your `angular.json` file, you should de
 
 ⚡️ Find the code on GitHub: https://github.com/oktadeveloper/okta-angular-deployment-example[@oktadeveloper/okta-angular-deployment-example].
 
-////
-👀 Read the blog post: https://developer.okta.com/blog/2020/01/09/java-rest-api-showdown[Java REST API Showdown: Which is the Best Framework on the Market?].
-////
+👀 Read the blog post: https://developer.okta.com/blog/2020/05/29/angular-deployment[Angular Deployment with a Side of Spring Boot].
