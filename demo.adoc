@@ -520,14 +520,14 @@ heroku config:set SPRING_JPA_HIBERNATE_DDL_AUTO=validate --remote heroku
 }
 ----
 
-. For `static.json` to be read, you have to use the https://github.com/heroku/heroku-buildpack-static[Heroku static buildpack]. This buildpack is made for SPA applications, so you can change the `scripts` section to Angular defaults.
+. For `static.json` to be read, you have to use the https://github.com/heroku/heroku-buildpack-static[Heroku static buildpack]. This buildpack is made for SPA applications, so you can change the `scripts` section to Angular defaults. Add `--prod` to the `build` script since this is the script the static buildpack runs.
 +
 [source,json]
 ----
 "scripts": {
   "ng": "ng",
   "start": "ng serve",
-  "build": "ng build",
+  "build": "ng build --prod",
   "test": "ng test",
   "lint": "ng lint",
   "e2e": "ng e2e"
